@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <textarea v-model="input.emails"></textarea>
+        <textarea v-model="input.valids"></textarea>
+        <textarea v-model="input.invalids"></textarea>
+        <button @click="startRequest">Start</button>
+    </div>
+    <script src="./assets/js/axios.min.js"></script>
+    <script src="./assets/js/vue.js"></script>
+    <script>
+        // const axios = require('axios');
+        new Vue({
+            el: '#app',
+            data: {
+                input: {
+                    emails: 'jeronimopacheco@oi.com.br|mar1754sheik\ncgalvares@uol.com.br|cris3286\nmaurocs38a73@bol.com.br|games5050\njuniorgma388@terra.com.br|games5050',
+                    valids: '',
+                    invalids: '',
+                },
+                maxRequests: 2,
+                request: {
+                    count: 0,
+                    payload: []
+                }
+            },
+            watch: {
+                'request.count'(val) {
+                    if(val < this.maxRequests && this.request.payload.length)
+                        this.validate()
+                }
+            },
+            methods: {
+                validate() {
+                    this.request.count++
+                    let emailAndPassword = this.request.payload.shift()
+                    let email = emailAndPassword.split('|').shift()
+
+                    this.input.emails = this.request.payload.join('\n')
+
+                    axios.get('./validate.php?email=' + email)
+                    .then(res => res.data)
+                    .then(res => {
+                        res[email] 
+                        ? this.input.valids += emailAndPassword + '\n'
+                        : this.input.invalids += emailAndPassword + '\n'
+                    }) 
+                    .finally(() => {
+                        this.request.count--
+                    })
+                },
+                startRequest() {
+                    this.request.payload = this.input.emails.split('\n')
+                    this.validate()
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

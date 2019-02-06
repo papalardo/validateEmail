@@ -1,0 +1,12 @@
+{
+    "name": "root/validate-email",
+    "authors": [
+        {
+            "name": "Pablo Papalardo",
+            "email": "papalardo94@hotmail.com"
+        }
+    ],
+    "require": {
+        "zytzagoo/smtp-validate-email": "^1.0"
+    }
+}
