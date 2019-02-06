@@ -6,31 +6,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/app.css">
 </head>
 
 <body>
     <div id="app">
-        <textarea v-model="input.emails"></textarea>
-        <textarea v-model="input.valids"></textarea>
-        <textarea v-model="input.invalids"></textarea>
-        <button @click="startRequest">Start</button>
+        <div class="form">
+            <div class="form__payload">
+                <label for="">Lista de e-mails</label>
+                    <div class="div__in-row">
+                    <textarea v-model="input.emails" class="emails" :placeholder="placeholder"></textarea>
+                    <div class="forms__process" v-show="request.inProgress.length">
+                        <fieldset>
+                            <legend> Em progresso </legend>
+                            <div v-for="email in request.inProgress" class="align-middle">
+                            {{ email }} 
+                            <div class="lds-css"><div class="lds-spinner" style="100%;height:100%"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <button @click="startRequest" :disabled="request.count > 0" class="button">{{ request.count <= 0 ? 'Iniciar validação' : 'Validando..' }}</button>
+        </div>
+        <div class="results">
+            <div class="results__div">
+                <p>Válidos</p>
+                <textarea v-model="input.valids" class="success"></textarea>
+            </div>
+            <div class="results__div">
+                <p>Inválidos</p>
+                <textarea v-model="input.invalids" class="error"></textarea>
+            </div>
+        </div>
     </div>
     <script src="./assets/js/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TweenMax.min.js"></script>
     <script src="./assets/js/vue.js"></script>
     <script>
         // const axios = require('axios');
         new Vue({
             el: '#app',
             data: {
+                placeholder: 'jeronimopacheco@oi.com.br|3u3no12312\ncgalvares@uol.com.br|h321h3jk12\n....',
                 input: {
-                    emails: 'jeronimopacheco@oi.com.br|mar1754sheik\ncgalvares@uol.com.br|cris3286\nmaurocs38a73@bol.com.br|games5050\njuniorgma388@terra.com.br|games5050',
+                    emails: 'jeronimopacheco@oi.com.br|3u3no12312\ncgalvares@uol.com.br|h321h3jk12\nmaurocs38a73@bol.com.br|6546b4kn5\njuniorgma388@terra.com.br|5h43b5jh43',
                     valids: '',
                     invalids: '',
                 },
-                maxRequests: 2,
+                maxRequests: 10,
                 request: {
                     count: 0,
-                    payload: []
+                    payload: [],
+                    inProgress: [],
                 }
             },
             watch: {
@@ -41,11 +69,15 @@
             },
             methods: {
                 validate() {
-                    this.request.count++
                     let emailAndPassword = this.request.payload.shift()
+                    if(!emailAndPassword) return;
+                    
+                    this.request.count++
                     let email = emailAndPassword.split('|').shift()
 
                     this.input.emails = this.request.payload.join('\n')
+
+                    this.request.inProgress.push(email)
 
                     axios.get('./validate.php?email=' + email)
                     .then(res => res.data)
@@ -56,9 +88,16 @@
                     }) 
                     .finally(() => {
                         this.request.count--
+                        this.request.inProgress = this.request.inProgress.filter(e => e !== email)
                     })
                 },
                 startRequest() {
+                    if(!this.input.emails) return;
+
+                    TweenMax.to(document.querySelector('.form__payload textarea'), .5, { height: '10vh' })
+                    TweenMax.to(document.querySelectorAll('.results'), .5, { opacity: 1 })
+                    TweenMax.to(document.querySelectorAll('.results textarea'), .5, { height: '40vh', width: '100%' })
+                    TweenMax.to(document.querySelectorAll('.forms__process'), .5, { minWidth: '300px' })
                     this.request.payload = this.input.emails.split('\n')
                     this.validate()
                 }
