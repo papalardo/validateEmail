@@ -10,7 +10,7 @@ $sender    = $email;
 // $sender    = 'allfinan@bol.com.br';
 $validator = new SmtpEmailValidator($email, $sender);
 
-// $validator->setConnectTimeout(120);
+$validator->setConnectTimeout(30);
 
 // $validator->debug = true;
 
