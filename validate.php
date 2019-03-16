@@ -12,7 +12,7 @@ $validator = new SmtpEmailValidator($email, $sender);
 
 // $validator->setConnectTimeout(120);
 
-$validator->debug = true;
+// $validator->debug = true;
 
 $results   = $validator->validate();
 echo json_encode($results);
@@ -20,5 +20,5 @@ return;
 
 // See logs
 
-$log = $validator->getLog();
-var_dump($log);
+// $log = $validator->getLog();
+// var_dump($log);
